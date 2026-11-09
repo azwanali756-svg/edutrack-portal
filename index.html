@@ -1023,19 +1023,26 @@
   <div id="loginScreen" style="position: fixed; inset: 0; background: #07070d; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px;">
     <div style="background: rgba(18, 12, 36, 0.95); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 20px; padding: 32px 28px; width: 100%; max-width: 380px; box-shadow: 0 10px 40px rgba(147, 51, 234, 0.3); text-align: center;">
       <div style="width: 56px; height: 56px; border-radius: 16px; background: linear-gradient(135deg, #7e22ce, #c084fc); display: flex; align-items: center; justify-content: center; font-size: 24px; color: #fff; margin: 0 auto 16px;">
-        <i class="fa-solid fa-lock"></i>
+        <i class="fa-solid fa-user-lock"></i>
       </div>
       <h2 style="color: #fff; font-size: 20px; font-weight: 700; margin-bottom: 6px;">EduTrack Portal</h2>
-      <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 22px;">Masukkan Sandi / PIN untuk mengakses sistem</p>
+      <p style="color: #a1a1aa; font-size: 13px; margin-bottom: 22px;">Silakan login untuk mengakses portal</p>
       
-      <form onsubmit="handleLoginSubmit(event)" style="display: flex; flex-direction: column; gap: 14px;">
-        <input type="password" id="loginPinInput" placeholder="Ketik sandi..." required style="width: 100%; background: rgba(22, 14, 40, 0.8); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 10px; padding: 12px; color: #fff; text-align: center; font-size: 16px; letter-spacing: 2px; outline: none;" />
-        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px;">
+      <form onsubmit="handleLoginSubmit(event)" style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="text-align: left;">
+          <label style="font-size: 12px; font-weight: 600; color: var(--purple-300); margin-bottom: 4px; display: block;">Username</label>
+          <input type="text" id="loginUsernameInput" placeholder="Masukkan username..." required style="width: 100%; background: rgba(22, 14, 40, 0.8); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 10px; padding: 11px 14px; color: #fff; font-size: 14px; outline: none;" />
+        </div>
+        <div style="text-align: left;">
+          <label style="font-size: 12px; font-weight: 600; color: var(--purple-300); margin-bottom: 4px; display: block;">Password</label>
+          <input type="password" id="loginPasswordInput" placeholder="Masukkan password..." required style="width: 100%; background: rgba(22, 14, 40, 0.8); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 10px; padding: 11px 14px; color: #fff; font-size: 14px; outline: none;" />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 14px; margin-top: 6px;">
           <i class="fa-solid fa-arrow-right-to-bracket"></i> Masuk
         </button>
       </form>
       <div id="loginErrorMsg" style="color: #f87171; font-size: 12px; margin-top: 12px; display: none;">
-        <i class="fa-solid fa-circle-exclamation"></i> Sandi salah, silakan coba lagi!
+        <i class="fa-solid fa-circle-exclamation"></i> Username atau password salah!
       </div>
     </div>
   </div>
@@ -2362,7 +2369,8 @@
     }
 
     /* ================= LOGIKA LOGIN & AUTENTIKASI ================= */
-    const APP_PASSWORD = 'ti24a'; 
+    const AUTH_USER = 'azwan';
+    const AUTH_PASS = '12345678';
 
     function checkAuthStatus() {
       const isAuth = sessionStorage.getItem('edutrack_auth');
@@ -2376,18 +2384,20 @@
 
     function handleLoginSubmit(e) {
       e.preventDefault();
-      const input = document.getElementById('loginPinInput');
+      const userInput = document.getElementById('loginUsernameInput');
+      const passInput = document.getElementById('loginPasswordInput');
       const err = document.getElementById('loginErrorMsg');
       
-      if (input.value === APP_PASSWORD) {
+      if (userInput.value.trim() === AUTH_USER && passInput.value === AUTH_PASS) {
         sessionStorage.setItem('edutrack_auth', 'true');
         err.style.display = 'none';
         document.getElementById('loginScreen').style.display = 'none';
-        input.value = '';
+        userInput.value = '';
+        passInput.value = '';
       } else {
         err.style.display = 'block';
-        input.value = '';
-        input.focus();
+        passInput.value = '';
+        passInput.focus();
       }
     }
 
