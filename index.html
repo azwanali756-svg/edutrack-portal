@@ -1,0 +1,2348 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduTrack Portal - Azwan Ali</title>
+  
+  <!-- Font & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Document Parsing Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
+  <style>
+    :root {
+      --bg-main: #07070d;
+      --bg-sidebar: linear-gradient(180deg, #130926 0%, #0c0717 65%, #050308 100%);
+      --bg-card: rgba(18, 12, 36, 0.75);
+      --bg-card-hover: rgba(28, 18, 54, 0.9);
+      --border-color: rgba(168, 85, 247, 0.22);
+      --border-glow: rgba(192, 132, 252, 0.55);
+      
+      --purple-900: #1e0b38;
+      --purple-800: #3b0764;
+      --purple-700: #581c87;
+      --purple-600: #7e22ce;
+      --purple-500: #9333ea;
+      --purple-400: #a855f7;
+      --purple-300: #d8b4fe;
+      
+      --accent-grad: linear-gradient(135deg, #7e22ce 0%, #9333ea 50%, #c084fc 100%);
+      
+      --text-main: #f8fafc;
+      --text-muted: #a1a1aa;
+      --text-sub: #71717a;
+      
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.18);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.18);
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.18);
+
+      --font-sans: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(147, 51, 234, 0.16) 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(126, 34, 206, 0.14) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='450' height='450' viewBox='0 0 800 800'%3E%3Cpath fill='none' stroke='%23a855f7' stroke-width='1.2' stroke-opacity='0.08' d='M400,0 C420,120 380,240 400,350 C415,420 490,470 540,520 C600,580 670,610 800,630 M400,350 C370,430 290,480 230,530 C160,590 90,620 0,640 M490,470 C470,550 510,630 530,710 C540,750 580,780 600,800 M290,480 C310,560 270,640 250,720 C240,760 200,780 180,800 M400,200 C470,230 540,250 620,240 C700,230 750,270 800,280 M400,200 C330,230 260,250 180,240 C100,230 50,270 0,280'/%3E%3C/svg%3E");
+      background-attachment: fixed;
+    }
+
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(7, 7, 13, 0.8);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--purple-700);
+      border-radius: 99px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--purple-500);
+    }
+
+    /* ================= SIDEBAR KIRI ================= */
+    .app-sidebar {
+      width: 310px;
+      min-width: 310px;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 24px 20px;
+      z-index: 40;
+      backdrop-filter: blur(16px);
+      box-shadow: 4px 0 30px rgba(0, 0, 0, 0.6);
+    }
+
+    .profile-card {
+      background: rgba(24, 15, 46, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 24px -4px rgba(147, 51, 234, 0.25);
+    }
+    .profile-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: var(--accent-grad);
+    }
+    .profile-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: var(--accent-grad);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 19px;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(168, 85, 247, 0.4);
+    }
+    .profile-meta h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .profile-meta .badges {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: rgba(168, 85, 247, 0.16);
+      color: var(--purple-300);
+      border: 1px solid rgba(168, 85, 247, 0.25);
+      font-family: var(--font-mono);
+    }
+
+    /* Live Digital Clock Widget */
+    .clock-widget {
+      margin-top: 14px;
+      background: rgba(15, 10, 30, 0.7);
+      border: 1px solid rgba(168, 85, 247, 0.18);
+      border-radius: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+    }
+    .clock-time {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--purple-300);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .clock-date {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Radar Box */
+    .radar-deck {
+      margin-top: 14px;
+      background: rgba(22, 13, 44, 0.6);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .radar-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--purple-300);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 6px;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--danger);
+      box-shadow: 0 0 10px var(--danger);
+      animation: pulse 1.6s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(1.3); }
+    }
+    .radar-stat {
+      font-size: 24px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+    }
+    .radar-label {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Navigation Links Vertikal */
+    .nav-menu {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      color: var(--text-muted);
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+    .nav-btn .btn-inner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-btn:hover {
+      background: rgba(168, 85, 247, 0.1);
+      color: var(--purple-300);
+      border-color: rgba(168, 85, 247, 0.2);
+    }
+    .nav-btn.active {
+      background: var(--accent-grad);
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(147, 51, 234, 0.4);
+      border-color: transparent;
+    }
+    .nav-btn i {
+      width: 18px;
+      font-size: 15px;
+    }
+    .nav-badge {
+      background: #f59e0b;
+      color: #000;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 10px;
+    }
+    .nav-badge.blue {
+      background: #38bdf8;
+    }
+
+    .sidebar-footer {
+      padding-top: 14px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* ================= MAIN CONTENT ================= */
+    .app-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .top-bar {
+      height: 70px;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(14px);
+      background: rgba(7, 7, 13, 0.75);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+    }
+    .workspace-info h1 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(90deg, #ffffff, #d8b4fe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .workspace-info p {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      outline: none;
+    }
+    .btn-primary {
+      background: var(--accent-grad);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(147, 51, 234, 0.35);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 6px 24px rgba(168, 85, 247, 0.5);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      background: rgba(30, 18, 54, 0.7);
+      color: var(--purple-300);
+      border-color: rgba(168, 85, 247, 0.3);
+    }
+    .btn-secondary:hover {
+      background: rgba(168, 85, 247, 0.2);
+      border-color: var(--purple-400);
+    }
+
+    /* Multi-View Panes */
+    .view-pane {
+      display: none;
+      padding: 24px 32px 40px;
+      flex: 1;
+    }
+    .view-pane.active {
+      display: block;
+      animation: fadeIn 0.25s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .sem-pills {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .sem-pill {
+      padding: 6px 13px;
+      background: rgba(20, 12, 38, 0.7);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .sem-pill:hover {
+      border-color: var(--purple-400);
+      color: #fff;
+    }
+    .sem-pill.active {
+      background: rgba(168, 85, 247, 0.22);
+      border-color: var(--purple-400);
+      color: var(--purple-300);
+      font-weight: 700;
+      box-shadow: 0 0 12px rgba(168, 85, 247, 0.3);
+    }
+
+    .search-box {
+      position: relative;
+      width: 280px;
+    }
+    .search-box input {
+      width: 100%;
+      background: rgba(18, 12, 36, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 8px 14px 8px 36px;
+      color: #fff;
+      font-size: 12.5px;
+      outline: none;
+      transition: 0.2s;
+    }
+    .search-box input:focus {
+      border-color: var(--purple-400);
+      box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25);
+    }
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-sub);
+      font-size: 13px;
+    }
+
+    /* ================= SMART SCHEDULE BANNER (OPSI A) ================= */
+    .schedule-banner {
+      background: linear-gradient(135deg, rgba(28, 16, 56, 0.8) 0%, rgba(16, 10, 32, 0.8) 100%);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 20px 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .schedule-banner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--accent-grad);
+    }
+    .schedule-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .schedule-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .schedule-title h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .day-selector-pills {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .day-pill {
+      padding: 5px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(168, 85, 247, 0.2);
+      background: rgba(15, 9, 30, 0.6);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .day-pill:hover {
+      color: #fff;
+      border-color: var(--purple-400);
+    }
+    .day-pill.active {
+      background: var(--accent-grad);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
+    }
+
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+    .schedule-item-card {
+      background: rgba(14, 9, 28, 0.7);
+      border: 1px solid rgba(168, 85, 247, 0.16);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      position: relative;
+      transition: 0.2s;
+    }
+    .schedule-item-card.happening-now {
+      border-color: #a855f7;
+      box-shadow: 0 0 16px rgba(168, 85, 247, 0.35);
+      background: rgba(28, 16, 56, 0.85);
+    }
+    .schedule-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .schedule-tag {
+      font-size: 10.5px;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--purple-300);
+      background: rgba(168, 85, 247, 0.18);
+      padding: 2px 7px;
+      border-radius: 5px;
+    }
+    .schedule-session-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 5px;
+    }
+    .schedule-session-badge.now {
+      background: rgba(168, 85, 247, 0.25);
+      color: #e9d5ff;
+      border: 1px solid #a855f7;
+      animation: pulse 1.8s infinite;
+    }
+    .schedule-session-badge.upcoming {
+      background: rgba(56, 189, 248, 0.15);
+      color: #7dd3fc;
+    }
+    .schedule-session-badge.done {
+      background: rgba(113, 113, 122, 0.2);
+      color: #a1a1aa;
+    }
+    .schedule-course-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+    }
+    .schedule-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 6px;
+    }
+    .schedule-room {
+      color: var(--purple-300);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ================= DASHBOARD 2-COLUMN LOWER ================= */
+    .dashboard-columns {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 24px;
+    }
+    .column-box {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .column-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .column-header h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .column-link {
+      font-size: 12px;
+      color: var(--purple-300);
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      transition: 0.2s;
+    }
+    .column-link:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    /* Cards Style */
+    .task-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      position: relative;
+      backdrop-filter: blur(12px);
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+    .task-card:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(147, 51, 234, 0.25);
+      background: var(--bg-card-hover);
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .course-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--purple-300);
+      background: rgba(168, 85, 247, 0.16);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+    .status-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      user-select: none;
+      transition: 0.2s;
+    }
+    .status-badge.pending {
+      background: var(--warning-bg);
+      color: var(--warning);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .status-badge.in-progress {
+      background: rgba(168, 85, 247, 0.2);
+      color: var(--purple-300);
+      border: 1px solid rgba(168, 85, 247, 0.35);
+    }
+    .status-badge.completed {
+      background: var(--success-bg);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .card-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.35;
+    }
+    .card-desc {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .timer-strip {
+      background: rgba(10, 6, 20, 0.6);
+      border-radius: 8px;
+      padding: 8px 12px;
+      border: 1px solid rgba(168, 85, 247, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .timer-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+    .timer-info.urgent { color: #f87171; }
+    .timer-info.warning { color: #fbbf24; }
+    .timer-info.normal { color: var(--purple-300); }
+    .deadline-date {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .attachment-preview-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: rgba(168, 85, 247, 0.1);
+      border: 1px dashed rgba(168, 85, 247, 0.4);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .attachment-preview-btn:hover {
+      background: rgba(168, 85, 247, 0.22);
+      border-color: var(--purple-400);
+    }
+    .attachment-preview-btn .file-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    .attachment-preview-btn .file-info i {
+      color: var(--purple-400);
+    }
+
+    /* Materials Simple List Item (Column 2) */
+    .material-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: 0.2s;
+    }
+    .material-item:hover {
+      border-color: var(--border-glow);
+      background: var(--bg-card-hover);
+    }
+    .material-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+    }
+    .material-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.35;
+    }
+    .material-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 8px;
+    }
+
+    .quick-action-strip {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    /* Grid for Full Tasks & Full Materials */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 18px;
+    }
+
+    /* Status Filter Tabs for Full Tasks View */
+    .status-tab-strip {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .status-tab {
+      padding: 6px 14px;
+      border-radius: 8px;
+      background: rgba(18, 12, 36, 0.6);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .status-tab:hover {
+      color: #fff;
+      border-color: var(--purple-400);
+    }
+    .status-tab.active {
+      background: var(--accent-grad);
+      color: #fff;
+      border-color: transparent;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 2, 7, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-container {
+      background: #0f0a1c;
+      border: 1px solid var(--border-glow);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 50px -12px rgba(147, 51, 234, 0.4);
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-header h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .close-modal-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 18px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .close-modal-btn:hover {
+      color: #fff;
+    }
+    .modal-body {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--purple-300);
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: rgba(22, 14, 40, 0.8);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 9px 14px;
+      color: #fff;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: 0.2s;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--purple-400);
+      box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    /* Universal Viewer Modal */
+    .viewer-modal-container {
+      background: #090512;
+      border: 1px solid var(--border-glow);
+      border-radius: 20px;
+      width: 95vw;
+      max-width: 1100px;
+      height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85);
+      overflow: hidden;
+    }
+    .viewer-header {
+      padding: 14px 24px;
+      background: #130a24;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .viewer-file-details {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .viewer-file-details i {
+      font-size: 24px;
+      color: var(--purple-400);
+    }
+    .viewer-body {
+      flex: 1;
+      background: #040208;
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .viewer-body iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .viewer-body img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+    }
+    .viewer-doc-render {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      padding: 40px;
+      background: #ffffff;
+      color: #1e293b;
+      font-family: var(--font-sans);
+      line-height: 1.7;
+    }
+    .viewer-code-render {
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      padding: 24px;
+      background: #0b0716;
+      color: #d8b4fe;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 1024px) {
+      body { flex-direction: column; }
+      .app-sidebar {
+        width: 100%;
+        min-width: 100%;
+        height: auto;
+        position: relative;
+      }
+      .nav-menu {
+        flex-direction: row;
+        overflow-x: auto;
+      }
+      .dashboard-columns {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ================= SIDEBAR NAVIGASI KIRI ================= -->
+  <aside class="app-sidebar">
+    <div class="profile-card">
+      <div class="profile-avatar">AA</div>
+      <div class="profile-meta">
+        <h3>Azwan Ali</h3>
+        <div class="badges">
+          <span class="chip">TI24A</span>
+          <span class="chip">240511174</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Clock & Date -->
+    <div class="clock-widget">
+      <div class="clock-time">
+        <i class="fa-regular fa-clock"></i>
+        <span id="liveTime">00:00:00</span>
+      </div>
+      <div class="clock-date" id="liveDate">Kamis, 29 Okt</div>
+    </div>
+
+    <!-- Radar Box -->
+    <div class="radar-deck">
+      <div class="radar-title">
+        <span class="pulse-dot"></span>
+        <span>Deadline Radar</span>
+      </div>
+      <div class="radar-stat" id="urgentCount">0</div>
+      <div class="radar-label">Tugas Mendesak (&lt; 24 Jam)</div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <nav class="nav-menu">
+      <button class="nav-btn active" onclick="switchNav('dashboard', this)">
+        <div class="btn-inner">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>Dashboard</span>
+        </div>
+      </button>
+
+      <button class="nav-btn" onclick="switchNav('tasks', this)">
+        <div class="btn-inner">
+          <i class="fa-solid fa-list-check"></i>
+          <span>Rekap Tugas</span>
+        </div>
+        <span class="nav-badge" id="tasksBadge">0</span>
+      </button>
+
+      <button class="nav-btn" onclick="switchNav('materials', this)">
+        <div class="btn-inner">
+          <i class="fa-solid fa-book-bookmark"></i>
+          <span>Modul &amp; Materi Kuliah</span>
+        </div>
+        <span class="nav-badge blue" id="materialsBadge">0</span>
+      </button>
+    </nav>
+
+    <!-- Backup & Restore -->
+    <div class="sidebar-footer">
+      <button class="btn btn-secondary" style="width: 100%; justify-content: center;" onclick="exportDataJSON()">
+        <i class="fa-solid fa-cloud-arrow-down"></i> Backup Data (JSON)
+      </button>
+      <button class="btn btn-secondary" style="width: 100%; justify-content: center;" onclick="document.getElementById('importFile').click()">
+        <i class="fa-solid fa-cloud-arrow-up"></i> Pulihkan Data
+      </button>
+      <input type="file" id="importFile" style="display:none" accept=".json" onchange="importDataJSON(event)" />
+    </div>
+  </aside>
+
+  <!-- ================= WORKSPACE AREA ================= -->
+  <main class="app-main">
+    <header class="top-bar">
+      <div class="workspace-info">
+        <h1 id="viewTitle">Dashboard Perkuliahan</h1>
+        <p id="viewSubtitle">Portal Rekap Tugas &amp; Modul Kuliah - Teknik Informatika</p>
+      </div>
+      <div id="topActionArea">
+        <!-- Dynamic header actions per view -->
+      </div>
+    </header>
+
+    <!-- ================= VIEW 1: DASHBOARD ================= -->
+    <section class="view-pane active" id="pane-dashboard">
+      <!-- Option A: Smart Schedule Banner -->
+      <div class="schedule-banner">
+        <div class="schedule-top">
+          <div class="schedule-title">
+            <i class="fa-regular fa-calendar-check" style="font-size:20px; color:var(--purple-400);"></i>
+            <div>
+              <h3>Jadwal Perkuliahan: <span id="scheduleActiveDayName" style="color:var(--purple-300);">Hari Ini</span></h3>
+              <p style="font-size:12px; color:var(--text-muted); margin-top:2px;">Gedung Kuliah Machdor &bull; Semester Ganjil TI24A</p>
+            </div>
+          </div>
+          <div class="day-selector-pills">
+            <button class="day-pill" onclick="changeScheduleDay('senin', this)">Senin</button>
+            <button class="day-pill" onclick="changeScheduleDay('selasa', this)">Selasa</button>
+            <button class="day-pill" onclick="changeScheduleDay('rabu', this)">Rabu</button>
+            <button class="day-pill" onclick="changeScheduleDay('kamis', this)">Kamis</button>
+            <button class="day-pill" onclick="changeScheduleDay('jumat', this)">Jumat</button>
+            <button class="day-pill" onclick="changeScheduleDay('sabtu', this)">Sabtu</button>
+          </div>
+        </div>
+
+        <div class="schedule-grid" id="scheduleListContainer">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- Lower 2-Column Layout -->
+      <div class="dashboard-columns">
+        <!-- Left: Tugas Prioritas & Deadline -->
+        <div class="column-box">
+          <div class="column-header">
+            <h3><i class="fa-solid fa-stopwatch" style="color:var(--purple-400);"></i> Tugas Prioritas &amp; Deadline</h3>
+            <span class="column-link" onclick="switchNav('tasks')">Buka Semua Rekap &rarr;</span>
+          </div>
+          <div id="dashboardTasksList" style="display:flex; flex-direction:column; gap:12px;"></div>
+        </div>
+
+        <!-- Right: Materi Terkini + Quick Buttons -->
+        <div class="column-box">
+          <div class="column-header">
+            <h3><i class="fa-solid fa-book" style="color:var(--purple-400);"></i> Modul Materi Terkini</h3>
+            <span class="column-link" onclick="switchNav('materials')">Semua Modul &rarr;</span>
+          </div>
+          <div id="dashboardMaterialsList" style="display:flex; flex-direction:column; gap:10px;"></div>
+
+          <!-- Quick Action Buttons -->
+          <div class="quick-action-strip">
+            <button class="btn btn-primary" onclick="openAddTaskModal()">
+              <i class="fa-solid fa-plus"></i> + Tugas Baru
+            </button>
+            <button class="btn btn-secondary" onclick="openAddMaterialModal()">
+              <i class="fa-solid fa-file-arrow-up"></i> + Modul Baru
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= VIEW 2: REKAP TUGAS ================= -->
+    <section class="view-pane" id="pane-tasks">
+      <div class="filter-bar">
+        <div class="sem-pills">
+          <button class="sem-pill" onclick="filterTaskSemester('all', this)">Semua</button>
+          <button class="sem-pill" onclick="filterTaskSemester('1', this)">Sem 1</button>
+          <button class="sem-pill" onclick="filterTaskSemester('2', this)">Sem 2</button>
+          <button class="sem-pill" onclick="filterTaskSemester('3', this)">Sem 3</button>
+          <button class="sem-pill" onclick="filterTaskSemester('4', this)">Sem 4</button>
+          <button class="sem-pill active" onclick="filterTaskSemester('5', this)">Sem 5 (Aktif)</button>
+          <button class="sem-pill" onclick="filterTaskSemester('6', this)">Sem 6</button>
+          <button class="sem-pill" onclick="filterTaskSemester('7', this)">Sem 7</button>
+          <button class="sem-pill" onclick="filterTaskSemester('8', this)">Sem 8</button>
+        </div>
+
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="taskSearchInput" placeholder="Cari nama tugas atau matkul..." oninput="renderFullTasksView()" />
+        </div>
+      </div>
+
+      <div class="status-tab-strip">
+        <button class="status-tab active" onclick="filterTaskStatus('all', this)">Semua Tugas (<span id="countTabAll">0</span>)</button>
+        <button class="status-tab" onclick="filterTaskStatus('pending', this)">Belum Selesai (<span id="countTabPending">0</span>)</button>
+        <button class="status-tab" onclick="filterTaskStatus('in-progress', this)">Sedang Dikerjakan (<span id="countTabProgress">0</span>)</button>
+        <button class="status-tab" onclick="filterTaskStatus('completed', this)">Tuntas Selesai (<span id="countTabCompleted">0</span>)</button>
+      </div>
+
+      <div class="cards-grid" id="fullTasksGrid"></div>
+    </section>
+
+    <!-- ================= VIEW 3: MODUL & MATERI KULIAH ================= -->
+    <section class="view-pane" id="pane-materials">
+      <div class="filter-bar">
+        <div class="sem-pills">
+          <button class="sem-pill" onclick="filterMaterialSemester('all', this)">Semua</button>
+          <button class="sem-pill" onclick="filterMaterialSemester('1', this)">Sem 1</button>
+          <button class="sem-pill" onclick="filterMaterialSemester('2', this)">Sem 2</button>
+          <button class="sem-pill" onclick="filterMaterialSemester('3', this)">Sem 3</button>
+          <button class="sem-pill" onclick="filterMaterialSemester('4', this)">Sem 4</button>
+          <button class="sem-pill active" onclick="filterMaterialSemester('5', this)">Sem 5 (Aktif)</button>
+          <button class="sem-pill" onclick="filterMaterialSemester('6', this)">Sem 6</button>
+          <button class="sem-pill" onclick="filterMaterialSemester('7', this)">Sem 7</button>
+          <button class="sem-pill" onclick="filterMaterialSemester('8', this)">Sem 8</button>
+        </div>
+
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="materialSearchInput" placeholder="Cari modul atau materi kuliah..." oninput="renderFullMaterialsView()" />
+        </div>
+      </div>
+
+      <div class="cards-grid" id="fullMaterialsGrid"></div>
+    </section>
+  </main>
+
+  <!-- ================= MODAL TAMBAH TUGAS ================= -->
+  <div class="modal-overlay" id="taskModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-pen-to-square" style="color:var(--purple-400); margin-right:8px;"></i> Catat Tugas Baru</h3>
+        <button class="close-modal-btn" onclick="closeModal('taskModal')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form class="modal-body" onsubmit="saveTask(event)">
+        <div class="form-group">
+          <label>Judul Tugas</label>
+          <input type="text" id="taskTitle" placeholder="Contoh: Implementasi Logika Fuzzy ESP32" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Mata Kuliah</label>
+            <select id="taskCourse" onchange="toggleCustomCourseInput('taskCourse', 'taskCustomCourseGroup')" required>
+              <option value="" disabled selected>-- Pilih Mata Kuliah --</option>
+              <option value="Pemrograman Berbasis Platform (TI24A)">Pemrograman Berbasis Platform (TI24A)</option>
+              <option value="Analisis Design PL (TI24A)">Analisis Design PL (TI24A)</option>
+              <option value="Tata Tulis Ilmiah / Metopen (TI24A)">Tata Tulis Ilmiah / Metopen (TI24A)</option>
+              <option value="AIK 4 (Islam & IPTEK) (TI24A)">AIK 4 (Islam & IPTEK) (TI24A)</option>
+              <option value="Teknologi AR/VR (24K2A)">Teknologi AR/VR (24K2A)</option>
+              <option value="AI Computing Platform (24K2A)">AI Computing Platform (24K2A)</option>
+              <option value="Manajemen Proyek TI (TI24A)">Manajemen Proyek TI (TI24A)</option>
+              <option value="Interaksi Manusia & Komputer (TI23A)">Interaksi Manusia & Komputer (TI23A)</option>
+              <option value="Hukum dan Kebijakan Teknologi (TI23C)">Hukum dan Kebijakan Teknologi (TI23C)</option>
+              <option value="__custom__">&#10010; Lainnya (Ketik Manual)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Semester</label>
+            <select id="taskSemester">
+              <option value="1">Semester 1</option>
+              <option value="2">Semester 2</option>
+              <option value="3">Semester 3</option>
+              <option value="4">Semester 4</option>
+              <option value="5" selected>Semester 5 (Aktif)</option>
+              <option value="6">Semester 6</option>
+              <option value="7">Semester 7</option>
+              <option value="8">Semester 8</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Dynamic manual input if 'Lainnya' selected -->
+        <div class="form-group" id="taskCustomCourseGroup" style="display:none;">
+          <label>Nama Mata Kuliah Khusus / Tambahan</label>
+          <input type="text" id="taskCustomCourseInput" placeholder="Masukkan nama mata kuliah..." />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Tenggat Waktu (Deadline)</label>
+            <input type="datetime-local" id="taskDeadline" required />
+          </div>
+          <div class="form-group">
+            <label>Lampiran Berkas (PDF, DOCX, PPTX, dll)</label>
+            <input type="file" id="taskFile" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Instruksi / Catatan Tambahan</label>
+          <textarea id="taskNotes" rows="3" placeholder="Tulis catatan petunjuk pengerjaan di sini..."></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('taskModal')">Batal</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Simpan Tugas</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL UNGGAH MODUL/MATERI ================= -->
+  <div class="modal-overlay" id="materialModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-file-arrow-up" style="color:var(--purple-400); margin-right:8px;"></i> Unggah Modul &amp; Materi</h3>
+        <button class="close-modal-btn" onclick="closeModal('materialModal')"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <form class="modal-body" onsubmit="saveMaterial(event)">
+        <div class="form-group">
+          <label>Judul Modul / Topik Pembahasan</label>
+          <input type="text" id="matTitle" placeholder="Contoh: Arsitektur REST API &amp; Keamanan Token JWT" required />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Mata Kuliah</label>
+            <select id="matCourse" onchange="toggleCustomCourseInput('matCourse', 'matCustomCourseGroup')" required>
+              <option value="" disabled selected>-- Pilih Mata Kuliah --</option>
+              <option value="Pemrograman Berbasis Platform (TI24A)">Pemrograman Berbasis Platform (TI24A)</option>
+              <option value="Analisis Design PL (TI24A)">Analisis Design PL (TI24A)</option>
+              <option value="Tata Tulis Ilmiah / Metopen (TI24A)">Tata Tulis Ilmiah / Metopen (TI24A)</option>
+              <option value="AIK 4 (Islam & IPTEK) (TI24A)">AIK 4 (Islam & IPTEK) (TI24A)</option>
+              <option value="Teknologi AR/VR (24K2A)">Teknologi AR/VR (24K2A)</option>
+              <option value="AI Computing Platform (24K2A)">AI Computing Platform (24K2A)</option>
+              <option value="Manajemen Proyek TI (TI24A)">Manajemen Proyek TI (TI24A)</option>
+              <option value="Interaksi Manusia & Komputer (TI23A)">Interaksi Manusia & Komputer (TI23A)</option>
+              <option value="Hukum dan Kebijakan Teknologi (TI23C)">Hukum dan Kebijakan Teknologi (TI23C)</option>
+              <option value="__custom__">&#10010; Lainnya (Ketik Manual)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Pertemuan Ke-</label>
+            <input type="number" id="matPertemuan" placeholder="Contoh: 5" min="1" max="16" required />
+          </div>
+        </div>
+
+        <!-- Dynamic manual input if 'Lainnya' selected -->
+        <div class="form-group" id="matCustomCourseGroup" style="display:none;">
+          <label>Nama Mata Kuliah Khusus / Tambahan</label>
+          <input type="text" id="matCustomCourseInput" placeholder="Masukkan nama mata kuliah..." />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Semester</label>
+            <select id="matSemester">
+              <option value="1">Semester 1</option>
+              <option value="2">Semester 2</option>
+              <option value="3">Semester 3</option>
+              <option value="4">Semester 4</option>
+              <option value="5" selected>Semester 5 (Aktif)</option>
+              <option value="6">Semester 6</option>
+              <option value="7">Semester 7</option>
+              <option value="8">Semester 8</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>File Dokumen (PDF, Word, PPTX, Gambar)</label>
+            <input type="file" id="matFile" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Deskripsi Ringkas Materi</label>
+          <textarea id="matNotes" rows="2" placeholder="Catatan rangkuman atau poin penting modul..."></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" class="btn btn-secondary" onclick="closeModal('materialModal')">Batal</button>
+          <button type="submit" class="btn btn-primary"><i class="fa-solid fa-cloud-arrow-up"></i> Simpan Modul</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= IN-APP FILE VIEWER MODAL ================= -->
+  <div class="modal-overlay" id="viewerModal">
+    <div class="viewer-modal-container">
+      <div class="viewer-header">
+        <div class="viewer-file-details">
+          <i class="fa-solid fa-file-shield" id="viewerIcon"></i>
+          <div>
+            <h4 id="viewerFileName" style="color:#fff; font-size:15px; font-weight:700;">Nama Berkas</h4>
+            <span id="viewerFileSize" style="color:var(--text-sub); font-size:12px; font-family:var(--font-mono);">0 KB</span>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button class="btn btn-secondary" onclick="downloadCurrentFile()" style="padding:6px 12px; font-size:12px;">
+            <i class="fa-solid fa-download"></i> Unduh
+          </button>
+          <button class="close-modal-btn" onclick="closeModal('viewerModal')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+      </div>
+      <div class="viewer-body" id="viewerBody"></div>
+    </div>
+  </div>
+
+  <!-- ================= JAVASCRIPT ================= -->
+  <script>
+    /* Database IndexedDB */
+    const DB_NAME = 'EduTrack_AzwanAliDB_v2';
+    const DB_VERSION = 1;
+    let db;
+
+    function initDB() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(DB_NAME, DB_VERSION);
+        req.onupgradeneeded = (e) => {
+          const dbInstance = e.target.result;
+          if (!dbInstance.objectStoreNames.contains('files')) {
+            dbInstance.createObjectStore('files', { keyPath: 'id' });
+          }
+        };
+        req.onsuccess = (e) => {
+          db = e.target.result;
+          resolve(db);
+        };
+        req.onerror = (e) => reject(e);
+      });
+    }
+
+    async function saveFileToDB(id, fileObj) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction('files', 'readwrite');
+        const store = tx.objectStore('files');
+        store.put({
+          id: id,
+          name: fileObj.name,
+          type: fileObj.type,
+          size: fileObj.size,
+          lastModified: fileObj.lastModified,
+          blob: fileObj
+        });
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error);
+      });
+    }
+
+    async function getFileFromDB(id) {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction('files', 'readonly');
+        const store = tx.objectStore('files');
+        const req = store.get(id);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function deleteFileFromDB(id) {
+      return new Promise((resolve) => {
+        const tx = db.transaction('files', 'readwrite');
+        const store = tx.objectStore('files');
+        store.delete(id);
+        tx.oncomplete = () => resolve(true);
+      });
+    }
+
+    /* Course Schedule Matrix */
+    const classSchedule = {
+      senin: [
+        { name: 'Analisis Design PL TI24A', tag: 'ADPL', room: 'Machdor D 403', start: '07:30', end: '10:00', note: 'Reguler TI24A' },
+        { name: 'Tata Tulis Ilmiah (Metopen) TI24A', tag: 'Metopen', room: 'Machdor D 403', start: '10:00', end: '11:40', note: 'Reguler TI24A' },
+        { name: 'AIK 4 (Islam dan Ilmu Pengetahuan)', tag: 'AIK 4', room: 'Machdor D 403', start: '13:00', end: '14:40', note: 'Reguler TI24A' }
+      ],
+      selasa: [
+        { name: 'Pemrograman Berbasis Platform TI24A', tag: 'PBP', room: 'Machdor D 403', start: '07:30', end: '10:00', note: 'Reguler TI24A' },
+        { name: 'Teknologi AR/VR 24K2A', tag: 'AR/VR', room: 'Machdor D 406', start: '10:00', end: '12:30', note: 'Kelas 24K2A' }
+      ],
+      rabu: [
+        { name: 'AI Computing Platform 24K2A', tag: 'AICP', room: 'Machdor C 303', start: '18:00', end: '22:00', note: 'Sesi Malam 24K2A' }
+      ],
+      kamis: [
+        { name: 'Off-Class / Belajar Mandiri & Pengerjaan Proyek', tag: 'MANDIRI', room: 'Ruang Kerja / Lab', start: '08:00', end: '17:00', note: 'Fokus Riset & Tugas' }
+      ],
+      jumat: [
+        { name: 'Manajemen Proyek Teknologi Informasi TI24A', tag: 'Manpro TI', room: 'Machdor D 403', start: '18:00', end: '20:30', note: 'Sesi Malam TI24A' }
+      ],
+      sabtu: [
+        { name: 'Interaksi Manusia & Komputer TI23A', tag: 'IMK', room: 'Machdor D 403', start: '07:30', end: '10:00', note: 'Lintas TI23A' },
+        { name: 'Hukum dan Kebijakan Teknologi TI23C', tag: 'HKT', room: 'Machdor D 403', start: '15:30', end: '17:10', note: 'Lintas TI23C' }
+      ]
+    };
+
+    /* Initial Seed Data */
+    const initialTasks = [
+      {
+        id: 'task_001',
+        title: 'Desain Kontroler Irigasi Cerdas ESP32 & Logika Fuzzy',
+        course: 'Pemrograman Berbasis Platform',
+        semester: '5',
+        deadline: new Date(Date.now() + 14 * 3600 * 1000).toISOString().slice(0, 16),
+        notes: 'Implementasikan rule base Fuzzy Logic untuk penentuan debit pompa air berdasarkan sensor kelembaban.',
+        status: 'in-progress',
+        hasFile: true,
+        fileName: 'Proposal_Sistem_Fuzzy_ESP32.docx',
+        fileType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        fileSize: 45000
+      },
+      {
+        id: 'task_002',
+        title: 'Manajemen Jadwal & Analisis Jalur Kritis (CPM)',
+        course: 'Manajemen Proyek TI',
+        semester: '5',
+        deadline: new Date(Date.now() + 48 * 3600 * 1000).toISOString().slice(0, 16),
+        notes: 'Hitung total float dan tentukan diagram jaringan kerja proyek software.',
+        status: 'pending',
+        hasFile: true,
+        fileName: 'Studi_Kasus_CPM_Proyek.pdf',
+        fileType: 'application/pdf',
+        fileSize: 132000
+      },
+      {
+        id: 'task_003',
+        title: 'Slide Presentasi Evaluasi Heuristik UI/UX Sistem Akademik',
+        course: 'Interaksi Manusia & Komputer',
+        semester: '5',
+        deadline: new Date(Date.now() + 96 * 3600 * 1000).toISOString().slice(0, 16),
+        notes: 'Analisis 10 prinsip Nielsen pada portal mobile kampus.',
+        status: 'pending',
+        hasFile: true,
+        fileName: 'Slide_Heuristic_Evaluation.pptx',
+        fileType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        fileSize: 94000
+      }
+    ];
+
+    const initialMaterials = [
+      {
+        id: 'mat_001',
+        title: 'Arsitektur REST API & Middleware Keamanan Token JWT',
+        course: 'Pemrograman Berbasis Platform',
+        semester: '5',
+        pertemuan: '5',
+        notes: 'Implementasi middleware otentikasi Bearer token pada Express.js',
+        fileName: 'Modul_05_REST_JWT_TI24A.docx',
+        fileType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        fileSize: 52000
+      },
+      {
+        id: 'mat_002',
+        title: 'Diagram Skema Arsitektur & Alur Kerja Agile TI24A',
+        course: 'Manajemen Proyek TI',
+        semester: '5',
+        pertemuan: '4',
+        notes: 'Dokumentasi sprint planning dan pembagian user story backlog.',
+        fileName: 'Diagram_Arsitektur_Sprint_Agile.pdf',
+        fileType: 'application/pdf',
+        fileSize: 148000
+      },
+      {
+        id: 'mat_003',
+        title: 'Petunjuk Teknis Replikasi Cluster & Failover Basis Data',
+        course: 'Basis Data Lanjut',
+        semester: '5',
+        pertemuan: '3',
+        notes: 'Konfigurasi master-slave cluster dan benchmarking query.',
+        fileName: 'Petunjuk_Replikasi_DB_Cluster.pptx',
+        fileType: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        fileSize: 88000
+      }
+    ];
+
+    /* App State */
+    let currentNav = 'dashboard';
+    let currentScheduleDay = 'senin';
+    let tasksSemesterFilter = '5';
+    let tasksStatusFilter = 'all';
+    let materialsSemesterFilter = '5';
+
+    let tasks = JSON.parse(localStorage.getItem('edutrack_azwan_tasks_v2')) || initialTasks;
+    let materials = JSON.parse(localStorage.getItem('edutrack_azwan_materials_v2')) || initialMaterials;
+    let currentActiveFile = null;
+
+    /* Live Clock */
+    function updateLiveClock() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('id-ID', { hour12: false });
+      const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      
+      const dayName = days[now.getDay()];
+      const dateStr = `${dayName}, ${now.getDate()} ${months[now.getMonth()]}`;
+
+      const timeEl = document.getElementById('liveTime');
+      const dateEl = document.getElementById('liveDate');
+      if (timeEl) timeEl.textContent = timeStr;
+      if (dateEl) dateEl.textContent = dateStr;
+    }
+    setInterval(updateLiveClock, 1000);
+    updateLiveClock();
+
+    /* Auto-detect Today Schedule on load */
+    function detectTodaySchedule() {
+      const dayIdx = new Date().getDay();
+      const mapping = ['minggu', 'senin', 'selasa', 'rabu', 'kamis', 'jumat', 'sabtu'];
+      let detected = mapping[dayIdx];
+      if (detected === 'minggu') detected = 'senin'; // default to senin if weekend
+      currentScheduleDay = detected;
+      
+      // highlight day pill
+      document.querySelectorAll('.day-pill').forEach(pill => {
+        if (pill.textContent.toLowerCase() === detected) {
+          pill.classList.add('active');
+        } else {
+          pill.classList.remove('active');
+        }
+      });
+      renderScheduleBanner();
+    }
+
+    /* Change Schedule Day Pill */
+    function changeScheduleDay(dayKey, btn) {
+      currentScheduleDay = dayKey;
+      document.querySelectorAll('.day-pill').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderScheduleBanner();
+    }
+
+    /* Render Schedule Banner (Option A) */
+    function renderScheduleBanner() {
+      const container = document.getElementById('scheduleListContainer');
+      const titleSpan = document.getElementById('scheduleActiveDayName');
+      const dayCapital = currentScheduleDay.charAt(0).toUpperCase() + currentScheduleDay.slice(1);
+      titleSpan.textContent = dayCapital;
+
+      const items = classSchedule[currentScheduleDay] || [];
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; padding: 20px; color: var(--text-muted); text-align: center;">
+            <i class="fa-solid fa-mug-hot" style="font-size:24px; color:var(--purple-400); margin-bottom:8px;"></i>
+            <p>Tidak ada perkuliahan di hari ${dayCapital}. Waktu ideal untuk belajar mandiri dan pengerjaan proyek!</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Check current time status
+      const now = new Date();
+      const currentHours = now.getHours();
+      const currentMinutes = now.getMinutes();
+      const currentTimeNum = currentHours * 60 + currentMinutes;
+
+      container.innerHTML = items.map(c => {
+        const [startH, startM] = c.start.split(':').map(Number);
+        const [endH, endM] = c.end.split(':').map(Number);
+        const startNum = startH * 60 + startM;
+        const endNum = endH * 60 + endM;
+
+        let sessionClass = 'upcoming';
+        let sessionText = 'Akan Datang';
+        let isHappening = false;
+
+        const isToday = (new Date().getDay() === {senin:1, selasa:2, rabu:3, kamis:4, jumat:5, sabtu:6}[currentScheduleDay]);
+        if (isToday) {
+          if (currentTimeNum >= startNum && currentTimeNum <= endNum) {
+            sessionClass = 'now';
+            sessionText = 'Sedang Berlangsung';
+            isHappening = true;
+          } else if (currentTimeNum > endNum) {
+            sessionClass = 'done';
+            sessionText = 'Selesai';
+          }
+        }
+
+        return `
+          <div class="schedule-item-card ${isHappening ? 'happening-now' : ''}">
+            <div class="schedule-item-header">
+              <span class="schedule-tag">${escapeHTML(c.tag)} &bull; ${escapeHTML(c.note)}</span>
+              <span class="schedule-session-badge ${sessionClass}">${sessionText}</span>
+            </div>
+            <div class="schedule-course-name">${escapeHTML(c.name)}</div>
+            <div class="schedule-footer">
+              <span class="schedule-room"><i class="fa-solid fa-location-dot"></i> ${escapeHTML(c.room)}</span>
+              <span><i class="fa-regular fa-clock"></i> ${c.start} - ${c.end}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* Switch Multi-View Tabs */
+    function switchNav(viewName, btn) {
+      currentNav = viewName;
+      
+      // Update Sidebar buttons active state
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      if (btn) {
+        btn.classList.add('active');
+      } else {
+        const targetBtn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.getAttribute('onclick')?.includes(viewName));
+        if (targetBtn) targetBtn.classList.add('active');
+      }
+
+      // Hide all panes, show active
+      document.querySelectorAll('.view-pane').forEach(p => p.classList.remove('active'));
+      const activePane = document.getElementById(`pane-${viewName}`);
+      if (activePane) activePane.classList.add('active');
+
+      // Update Top Bar titles & buttons
+      const titleEl = document.getElementById('viewTitle');
+      const subEl = document.getElementById('viewSubtitle');
+      const actionEl = document.getElementById('topActionArea');
+
+      if (viewName === 'dashboard') {
+        titleEl.textContent = 'Dashboard Perkuliahan';
+        subEl.textContent = 'Portal Rekap Tugas & Modul Kuliah - Teknik Informatika';
+        actionEl.innerHTML = '';
+        renderDashboardView();
+      } else if (viewName === 'tasks') {
+        titleEl.textContent = 'Rekap Semua Tugas Kuliah';
+        subEl.textContent = 'Daftar penugasan, monitoring status pengerjaan & urutan deadline';
+        actionEl.innerHTML = `
+          <button class="btn btn-primary" onclick="openAddTaskModal()">
+            <i class="fa-solid fa-plus"></i> Tambah Tugas
+          </button>
+        `;
+        renderFullTasksView();
+      } else if (viewName === 'materials') {
+        titleEl.textContent = 'Repositori Modul & Materi Kuliah';
+        subEl.textContent = 'Koleksi dokumen kuliah, petunjuk praktikum & berkas referensi';
+        actionEl.innerHTML = `
+          <button class="btn btn-primary" onclick="openAddMaterialModal()">
+            <i class="fa-solid fa-file-arrow-up"></i> Unggah Modul Baru
+          </button>
+        `;
+        renderFullMaterialsView();
+      }
+
+      updateBadgesAndRadar();
+    }
+
+    /* Deadline calculation helper */
+    function getDeadlineStatus(deadlineStr) {
+      const now = new Date();
+      const target = new Date(deadlineStr);
+      const diff = target - now;
+
+      if (diff <= 0) return { text: 'Batas Waktu Terlewat', class: 'urgent', isUrgent: false };
+
+      const totalMinutes = Math.floor(diff / (1000 * 60));
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      const days = Math.floor(hours / 24);
+
+      if (hours < 1) {
+        return { text: `${totalMinutes} Menit Lagi (Mendesak)`, class: 'urgent', isUrgent: true };
+      } else if (hours < 24) {
+        const minText = minutes > 0 ? ` ${minutes} Menit` : '';
+        return { text: `${hours} Jam${minText} Lagi (Mendesak)`, class: 'urgent', isUrgent: true };
+      } else if (days <= 3) {
+        return { text: `${days} Hari Lagi`, class: 'warning', isUrgent: false };
+      }
+      return { text: `${days} Hari Lagi`, class: 'normal', isUrgent: false };
+    }
+
+    /* Cycle Task Status */
+    function cycleStatus(id) {
+      const task = tasks.find(t => t.id === id);
+      if (!task) return;
+
+      if (task.status === 'pending') task.status = 'in-progress';
+      else if (task.status === 'in-progress') task.status = 'completed';
+      else task.status = 'pending';
+
+      saveTasksMeta();
+      if (currentNav === 'dashboard') renderDashboardView();
+      else if (currentNav === 'tasks') renderFullTasksView();
+    }
+
+    /* ================= RENDER VIEW 1: DASHBOARD ================= */
+    function renderDashboardView() {
+      renderScheduleBanner();
+
+      // Column 1: Priority Tasks (Sorted by nearest deadline)
+      const tasksContainer = document.getElementById('dashboardTasksList');
+      const activeTasks = tasks.filter(t => t.status !== 'completed' && (t.semester === '5' || t.semester === 5))
+                               .sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+      if (activeTasks.length === 0) {
+        tasksContainer.innerHTML = `
+          <div style="background:var(--bg-card); border:1px dashed var(--border-color); border-radius:14px; padding:32px 20px; text-align:center;">
+            <i class="fa-solid fa-mug-hot" style="font-size:32px; color:var(--purple-400); margin-bottom:10px;"></i>
+            <h4 style="color:#fff; font-size:14px; margin-bottom:4px;">Semua tugas beres di Semester 5 (Aktif)!</h4>
+            <p style="font-size:12px; color:var(--text-muted);">Bagus sekali, Azwan Ali! Tidak ada tanggungan tugas mendesak saat ini.</p>
+          </div>
+        `;
+      } else {
+        tasksContainer.innerHTML = activeTasks.slice(0, 3).map(item => {
+          const timer = getDeadlineStatus(item.deadline);
+          const statusMap = {
+            'pending': { label: 'Belum Selesai', class: 'pending', icon: 'fa-regular fa-clock' },
+            'in-progress': { label: 'Dikerjakan', class: 'in-progress', icon: 'fa-solid fa-spinner fa-spin' }
+          };
+          const statusInfo = statusMap[item.status] || statusMap['pending'];
+
+          return `
+            <div class="task-card">
+              <div class="card-top">
+                <span class="course-tag">${escapeHTML(item.course)} &bull; S${item.semester}</span>
+                <span class="status-badge ${statusInfo.class}" onclick="cycleStatus('${item.id}')" title="Klik untuk mengubah status">
+                  <i class="${statusInfo.icon}"></i> ${statusInfo.label}
+                </span>
+              </div>
+              <div class="card-title">${escapeHTML(item.title)}</div>
+              <div class="timer-strip">
+                <div class="timer-info ${timer.class}">
+                  <i class="fa-solid fa-hourglass-half"></i> ${timer.text}
+                </div>
+                <div class="deadline-date">${formatDateTime(item.deadline)}</div>
+              </div>
+              ${item.hasFile ? `
+                <div class="attachment-preview-btn" onclick="openFileViewer('${item.id}', 'task')">
+                  <div class="file-info">
+                    <i class="fa-solid fa-file-lines"></i>
+                    <span>${escapeHTML(item.fileName)}</span>
+                  </div>
+                  <span style="font-size:11px; color:var(--purple-300);"><i class="fa-solid fa-arrow-up-right-from-square"></i> Buka Isi File</span>
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Column 2: Recent Materials (Semester 5)
+      const materialsContainer = document.getElementById('dashboardMaterialsList');
+      const recentMats = materials.filter(m => m.semester === '5' || m.semester === 5).slice(0, 3);
+
+      if (recentMats.length === 0) {
+        materialsContainer.innerHTML = `
+          <div style="background:var(--bg-card); border:1px dashed var(--border-color); border-radius:12px; padding:24px 16px; text-align:center; color:var(--text-muted); font-size:12.5px;">
+            Belum ada modul yang diunggah untuk Semester 5.
+          </div>
+        `;
+      } else {
+        materialsContainer.innerHTML = recentMats.map(mat => `
+          <div class="material-item">
+            <div class="material-meta">
+              <span class="course-tag">${escapeHTML(mat.course)}</span>
+              <span style="color:var(--purple-300); font-family:var(--font-mono); font-weight:700;">Pertemuan ${mat.pertemuan}</span>
+            </div>
+            <div class="material-title">${escapeHTML(mat.title)}</div>
+            <div class="material-footer">
+              <span style="font-family:var(--font-mono); font-size:11px; color:var(--text-sub);">
+                <i class="fa-solid fa-paperclip"></i> ${escapeHTML(mat.fileName)}
+              </span>
+              <button class="btn btn-secondary" onclick="openFileViewer('${mat.id}', 'material')" style="padding:4px 10px; font-size:11.5px;">
+                <i class="fa-regular fa-eye"></i> Buka Isi File
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    /* ================= RENDER VIEW 2: REKAP TUGAS ================= */
+    function filterTaskSemester(sem, btn) {
+      tasksSemesterFilter = sem;
+      document.querySelectorAll('#pane-tasks .sem-pill').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderFullTasksView();
+    }
+
+    function filterTaskStatus(status, btn) {
+      tasksStatusFilter = status;
+      document.querySelectorAll('#pane-tasks .status-tab').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderFullTasksView();
+    }
+
+    function renderFullTasksView() {
+      const container = document.getElementById('fullTasksGrid');
+      const query = (document.getElementById('taskSearchInput')?.value || '').toLowerCase();
+
+      // Counts for status tabs
+      const semMatched = tasks.filter(t => (tasksSemesterFilter === 'all') || (t.semester == tasksSemesterFilter));
+      document.getElementById('countTabAll').textContent = semMatched.length;
+      document.getElementById('countTabPending').textContent = semMatched.filter(t => t.status === 'pending').length;
+      document.getElementById('countTabProgress').textContent = semMatched.filter(t => t.status === 'in-progress').length;
+      document.getElementById('countTabCompleted').textContent = semMatched.filter(t => t.status === 'completed').length;
+
+      let filtered = semMatched.filter(t => {
+        const matchStatus = (tasksStatusFilter === 'all') || (t.status === tasksStatusFilter);
+        const matchSearch = t.title.toLowerCase().includes(query) || t.course.toLowerCase().includes(query) || (t.notes || '').toLowerCase().includes(query);
+        return matchStatus && matchSearch;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; text-align:center; padding: 60px 20px; color: var(--text-muted);">
+            <i class="fa-solid fa-inbox" style="font-size: 42px; margin-bottom: 12px; color: var(--purple-600);"></i>
+            <p>Tidak ada tugas kuliah yang sesuai dengan filter atau kata kunci ini.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => {
+        const timer = getDeadlineStatus(item.deadline);
+        const statusMap = {
+          'pending': { label: 'Belum Selesai', class: 'pending', icon: 'fa-regular fa-clock' },
+          'in-progress': { label: 'Dikerjakan', class: 'in-progress', icon: 'fa-solid fa-spinner fa-spin' },
+          'completed': { label: 'Tuntas', class: 'completed', icon: 'fa-solid fa-check' }
+        };
+        const statusInfo = statusMap[item.status] || statusMap['pending'];
+
+        return `
+          <div class="task-card">
+            <div class="card-top">
+              <span class="course-tag">${escapeHTML(item.course)} &bull; S${item.semester}</span>
+              <span class="status-badge ${statusInfo.class}" onclick="cycleStatus('${item.id}')" title="Klik untuk mengubah status">
+                <i class="${statusInfo.icon}"></i> ${statusInfo.label}
+              </span>
+            </div>
+
+            <div class="card-title">${escapeHTML(item.title)}</div>
+            <div class="card-desc">${escapeHTML(item.notes || 'Tidak ada catatan petunjuk tambahan.')}</div>
+
+            <div class="timer-strip">
+              <div class="timer-info ${timer.class}">
+                <i class="fa-solid fa-hourglass-half"></i> ${timer.text}
+              </div>
+              <div class="deadline-date">${formatDateTime(item.deadline)}</div>
+            </div>
+
+            ${item.hasFile ? `
+              <div class="attachment-preview-btn" onclick="openFileViewer('${item.id}', 'task')">
+                <div class="file-info">
+                  <i class="fa-solid fa-file-invoice"></i>
+                  <span>${escapeHTML(item.fileName)}</span>
+                </div>
+                <span style="font-size:11px; color:var(--purple-300);"><i class="fa-solid fa-arrow-up-right-from-square"></i> Buka Isi File</span>
+              </div>
+            ` : ''}
+
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.06); padding-top:8px; font-size:11.5px; color:var(--text-sub);">
+              <span>Mahasiswa: Azwan Ali</span>
+              <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px; color:#f87171;" onclick="deleteTask('${item.id}')">
+                <i class="fa-solid fa-trash"></i> Hapus
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    /* ================= RENDER VIEW 3: MODUL & MATERI ================= */
+    function filterMaterialSemester(sem, btn) {
+      materialsSemesterFilter = sem;
+      document.querySelectorAll('#pane-materials .sem-pill').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderFullMaterialsView();
+    }
+
+    function renderFullMaterialsView() {
+      const container = document.getElementById('fullMaterialsGrid');
+      const query = (document.getElementById('materialSearchInput')?.value || '').toLowerCase();
+
+      let filtered = materials.filter(m => {
+        const matchSem = (materialsSemesterFilter === 'all') || (m.semester == materialsSemesterFilter);
+        const matchSearch = m.title.toLowerCase().includes(query) || m.course.toLowerCase().includes(query) || (m.notes || '').toLowerCase().includes(query);
+        return matchSem && matchSearch;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1/-1; text-align:center; padding: 60px 20px; color: var(--text-muted);">
+            <i class="fa-solid fa-book-open" style="font-size: 42px; margin-bottom: 12px; color: var(--purple-600);"></i>
+            <p>Belum ada modul atau materi kuliah untuk semester atau pencarian ini.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => `
+        <div class="task-card">
+          <div class="card-top">
+            <span class="course-tag">${escapeHTML(item.course)} &bull; S${item.semester}</span>
+            <span class="schedule-tag" style="background:rgba(56,189,248,0.18); color:#7dd3fc;">Pertemuan ${item.pertemuan}</span>
+          </div>
+
+          <div class="card-title">${escapeHTML(item.title)}</div>
+          <div class="card-desc">${escapeHTML(item.notes || 'Modul perkuliahan / materi referensi mahasiswa.')}</div>
+
+          <div class="attachment-preview-btn" onclick="openFileViewer('${item.id}', 'material')">
+            <div class="file-info">
+              <i class="fa-solid fa-file-pdf"></i>
+              <span>${escapeHTML(item.fileName)}</span>
+            </div>
+            <span style="font-size:11px; color:var(--purple-300);"><i class="fa-solid fa-arrow-up-right-from-square"></i> Buka Isi File</span>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.06); padding-top:8px; font-size:11.5px; color:var(--text-sub);">
+            <span>Ukuran: ${formatBytes(item.fileSize)}</span>
+            <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px; color:#f87171;" onclick="deleteMaterial('${item.id}')">
+              <i class="fa-solid fa-trash"></i> Hapus
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    /* Modal Form Operations */
+    function openAddTaskModal() {
+      document.getElementById('taskModal').classList.add('active');
+    }
+    function openAddMaterialModal() {
+      document.getElementById('materialModal').classList.add('active');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    /* Helper: Toggle Custom Course Input */
+    function toggleCustomCourseInput(selectId, customGroupId) {
+      const selectEl = document.getElementById(selectId);
+      const groupEl = document.getElementById(customGroupId);
+      if (selectEl.value === '__custom__') {
+        groupEl.style.display = 'flex';
+        const input = groupEl.querySelector('input');
+        if (input) input.focus();
+      } else {
+        groupEl.style.display = 'none';
+      }
+    }
+
+    /* Save Task */
+    async function saveTask(e) {
+      e.preventDefault();
+      const id = 'task_' + Date.now();
+      const title = document.getElementById('taskTitle').value;
+      
+      let course = document.getElementById('taskCourse').value;
+      if (course === '__custom__') {
+        const customVal = document.getElementById('taskCustomCourseInput').value.trim();
+        course = customVal || 'Mata Kuliah Umum';
+      }
+
+      const semester = document.getElementById('taskSemester').value;
+      const deadline = document.getElementById('taskDeadline').value;
+      const notes = document.getElementById('taskNotes').value;
+      const fileInput = document.getElementById('taskFile');
+
+      let hasFile = false;
+      let fileName = '';
+      let fileType = '';
+      let fileSize = 0;
+
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        hasFile = true;
+        fileName = file.name;
+        fileType = file.type;
+        fileSize = file.size;
+        await saveFileToDB(id, file);
+      }
+
+      tasks.unshift({
+        id,
+        title,
+        course,
+        semester,
+        deadline,
+        notes,
+        status: 'pending',
+        hasFile,
+        fileName,
+        fileType,
+        fileSize
+      });
+
+      saveTasksMeta();
+      closeModal('taskModal');
+      e.target.reset();
+      document.getElementById('taskCustomCourseGroup').style.display = 'none';
+
+      if (currentNav === 'dashboard') renderDashboardView();
+      else if (currentNav === 'tasks') renderFullTasksView();
+    }
+
+    /* Save Material */
+    async function saveMaterial(e) {
+      e.preventDefault();
+      const id = 'mat_' + Date.now();
+      const title = document.getElementById('matTitle').value;
+      
+      let course = document.getElementById('matCourse').value;
+      if (course === '__custom__') {
+        const customVal = document.getElementById('matCustomCourseInput').value.trim();
+        course = customVal || 'Mata Kuliah Umum';
+      }
+
+      const pertemuan = document.getElementById('matPertemuan').value;
+      const semester = document.getElementById('matSemester').value;
+      const notes = document.getElementById('matNotes').value;
+      const fileInput = document.getElementById('matFile');
+
+      if (fileInput.files.length === 0) {
+        alert('Silakan pilih berkas materi terlebih dahulu.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      await saveFileToDB(id, file);
+
+      materials.unshift({
+        id,
+        title,
+        course,
+        pertemuan,
+        semester,
+        notes,
+        fileName: file.name,
+        fileType: file.type,
+        fileSize: file.size
+      });
+
+      saveMaterialsMeta();
+      closeModal('materialModal');
+      e.target.reset();
+      document.getElementById('matCustomCourseGroup').style.display = 'none';
+
+      if (currentNav === 'dashboard') renderDashboardView();
+      else if (currentNav === 'materials') renderFullMaterialsView();
+    }
+
+    /* Delete Operations */
+    async function deleteTask(id) {
+      if (confirm('Hapus tugas ini beserta lampirannya?')) {
+        tasks = tasks.filter(t => t.id !== id);
+        await deleteFileFromDB(id);
+        saveTasksMeta();
+        if (currentNav === 'dashboard') renderDashboardView();
+        else if (currentNav === 'tasks') renderFullTasksView();
+      }
+    }
+
+    async function deleteMaterial(id) {
+      if (confirm('Hapus modul materi ini?')) {
+        materials = materials.filter(m => m.id !== id);
+        await deleteFileFromDB(id);
+        saveMaterialsMeta();
+        if (currentNav === 'dashboard') renderDashboardView();
+        else if (currentNav === 'materials') renderFullMaterialsView();
+      }
+    }
+
+    function saveTasksMeta() {
+      localStorage.setItem('edutrack_azwan_tasks_v2', JSON.stringify(tasks));
+      updateBadgesAndRadar();
+    }
+    function saveMaterialsMeta() {
+      localStorage.setItem('edutrack_azwan_materials_v2', JSON.stringify(materials));
+      updateBadgesAndRadar();
+    }
+
+    /* Update Sidebar Badges and Radar */
+    function updateBadgesAndRadar() {
+      const urgentCount = tasks.filter(t => {
+        if (t.status === 'completed') return false;
+        const diff = new Date(t.deadline) - new Date();
+        return diff > 0 && diff < (24 * 3600 * 1000);
+      }).length;
+      document.getElementById('urgentCount').textContent = urgentCount;
+
+      const activeTasksCount = tasks.filter(t => t.status !== 'completed').length;
+      document.getElementById('tasksBadge').textContent = activeTasksCount;
+      document.getElementById('materialsBadge').textContent = materials.length;
+    }
+
+    /* Universal In-App File Viewer */
+    async function openFileViewer(id, originType) {
+      let item = null;
+      if (originType === 'task') item = tasks.find(t => t.id === id);
+      else if (originType === 'material') item = materials.find(m => m.id === id);
+
+      if (!item) return;
+
+      const fileData = await getFileFromDB(id);
+      document.getElementById('viewerFileName').textContent = item.fileName;
+      document.getElementById('viewerFileSize').textContent = formatBytes(item.fileSize);
+      
+      const body = document.getElementById('viewerBody');
+      body.innerHTML = '<div style="color:var(--purple-300);"><i class="fa-solid fa-spinner fa-spin"></i> Memuat berkas...</div>';
+      document.getElementById('viewerModal').classList.add('active');
+
+      if (!fileData || !fileData.blob) {
+        body.innerHTML = `
+          <div class="viewer-doc-render" style="background:#090512; color:#e2e8f0; width:100%; height:100%;">
+            <div style="padding:24px; border:1px solid rgba(168,85,247,0.3); border-radius:14px; background:rgba(20,12,38,0.85);">
+              <h2 style="color:var(--purple-400); margin-bottom:12px;"><i class="fa-solid fa-file-shield"></i> Berkas Sampel Tersimpan</h2>
+              <p><strong>Nama Berkas:</strong> ${escapeHTML(item.fileName)}</p>
+              <p><strong>Mata Kuliah:</strong> ${escapeHTML(item.course)} &bull; Azwan Ali (TI24A)</p>
+              <hr style="border:none; border-top:1px solid rgba(255,255,255,0.1); margin:16px 0;" />
+              <p style="font-size:14px; line-height:1.6;">Ini adalah berkas demo bawaan sistem. Untuk menguji universal file viewer (PDF, Word DOCX via Mammoth, PowerPoint PPTX via JSZip) dengan dokumen fisik asli Anda, silakan unggah berkas baru lewat tombol <strong>"+ Tugas Baru"</strong> atau <strong>"+ Modul Baru"</strong>!</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      currentActiveFile = fileData;
+      const blob = fileData.blob;
+      const lowerName = item.fileName.toLowerCase();
+
+      // PDF
+      if (lowerName.endsWith('.pdf') || blob.type === 'application/pdf') {
+        const fileURL = URL.createObjectURL(blob);
+        body.innerHTML = `<iframe src="${fileURL}#toolbar=1"></iframe>`;
+      }
+      // Word (.docx) via Mammoth
+      else if (lowerName.endsWith('.docx')) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          mammoth.convertToHtml({ arrayBuffer: evt.target.result })
+            .then(result => {
+              body.innerHTML = `<div class="viewer-doc-render">${result.value}</div>`;
+            })
+            .catch(err => {
+              body.innerHTML = `<div style="color:#f87171; padding:20px;">Gagal memproses DOCX: ${err.message}</div>`;
+            });
+        };
+        reader.readAsArrayBuffer(blob);
+      }
+      // PowerPoint (.pptx) via JSZip
+      else if (lowerName.endsWith('.pptx')) {
+        const reader = new FileReader();
+        reader.onload = async function(evt) {
+          try {
+            const zip = await JSZip.loadAsync(evt.target.result);
+            let slideTexts = [];
+            const slideFiles = Object.keys(zip.files).filter(f => f.startsWith('ppt/slides/slide') && f.endsWith('.xml'));
+            for (let f of slideFiles) {
+              const xmlText = await zip.files[f].async('text');
+              const parser = new DOMParser();
+              const xmlDoc = parser.parseFromString(xmlText, 'text/xml');
+              const textNodes = xmlDoc.getElementsByTagName('a:t');
+              let slideContent = [];
+              for (let i = 0; i < textNodes.length; i++) {
+                slideContent.push(textNodes[i].textContent);
+              }
+              slideTexts.push(slideContent.join(' '));
+            }
+            body.innerHTML = `
+              <div class="viewer-doc-render" style="background:#0c0717; color:#fff;">
+                <h2 style="color:var(--purple-400); margin-bottom:20px;">Ringkasan Slide PPTX (${slideFiles.length} Slide):</h2>
+                ${slideTexts.map((s, idx) => `
+                  <div style="background:rgba(255,255,255,0.04); padding:16px; border-radius:10px; margin-bottom:14px; border:1px solid rgba(168,85,247,0.2);">
+                    <h4 style="color:var(--purple-300);">Slide ${idx + 1}</h4>
+                    <p style="margin-top:6px; font-size:14px; line-height:1.6;">${s || '<i>(Hanya berisi gambar/elemen grafik)</i>'}</p>
+                  </div>
+                `).join('')}
+              </div>
+            `;
+          } catch(e) {
+            body.innerHTML = `<div style="color:#f87171; padding:20px;">Gagal membaca PPTX: ${e.message}</div>`;
+          }
+        };
+        reader.readAsArrayBuffer(blob);
+      }
+      // Images
+      else if (blob.type.startsWith('image/')) {
+        const imgURL = URL.createObjectURL(blob);
+        body.innerHTML = `<img src="${imgURL}" alt="Preview Berkas" />`;
+      }
+      // Text / Code
+      else {
+        const text = await blob.text();
+        body.innerHTML = `<div class="viewer-code-render">${escapeHTML(text)}</div>`;
+      }
+    }
+
+    function downloadCurrentFile() {
+      if (!currentActiveFile || !currentActiveFile.blob) {
+        alert('File demo ini belum memiliki salinan fisik di browser.');
+        return;
+      }
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(currentActiveFile.blob);
+      a.download = currentActiveFile.name;
+      a.click();
+    }
+
+    /* Backup & Restore Data (JSON) */
+    function exportDataJSON() {
+      const payload = {
+        tasks,
+        materials,
+        student: { name: 'Azwan Ali', class: 'TI24A', nim: '240511174' },
+        exportDate: new Date().toISOString()
+      };
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `EduTrack_AzwanAli_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importDataJSON(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const imported = JSON.parse(event.target.result);
+          if (imported.tasks && Array.isArray(imported.tasks)) {
+            tasks = imported.tasks;
+            materials = imported.materials || materials;
+            saveTasksMeta();
+            saveMaterialsMeta();
+            switchNav(currentNav);
+            alert('Data tugas & materi berhasil dipulihkan!');
+          } else if (Array.isArray(imported)) {
+            tasks = imported;
+            saveTasksMeta();
+            switchNav(currentNav);
+            alert('Data tugas berhasil dipulihkan!');
+          }
+        } catch(err) {
+          alert('Format berkas JSON tidak sesuai.');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    /* Helpers */
+    function formatDateTime(str) {
+      if (!str) return '-';
+      const d = new Date(str);
+      return d.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    }
+    function formatBytes(bytes) {
+      if (!bytes) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+    function escapeHTML(str) {
+      return String(str || '').replace(/[&<>'"]/g, 
+        tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+      );
+    }
+
+    /* Init Application */
+    window.addEventListener('DOMContentLoaded', async () => {
+      await initDB();
+      detectTodaySchedule();
+      switchNav('dashboard');
+    });
+  </script>
+</body>
+</html>
